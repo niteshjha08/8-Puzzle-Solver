@@ -4,7 +4,7 @@ from sre_parse import State
 import numpy as np
 import os
 import sys
-sys.setrecursionlimit(2000)
+# sys.setrecursionlimit(2000)
 class Node :
     def __init__(self):
         self.index = None
@@ -51,31 +51,61 @@ def move_state(curr_state,direction):
         # print("original passed:\n",curr_state.state)
         # print("modified:\n",state.state)
 
+        state.index=visited_states[-1].index + 1
+        state.parent=curr_state.index
 
         if not check_visited(state):
 
-            visited_states.append(state)
+            # visited_states.append(state)
             # curr_state = state
             
             return True, state
         else:
-            print("Already visited this one!")
+            # print("Already visited this one!")
             return False, curr_state
     
     else:
-        print("Cannot move in this direction ")
+        # print("Cannot move in this direction ")
         return False, curr_state
 
 rec=0
+# def add_to_visited_list(state=current_state,parent=parent_state):
+#     visited_states.append(state)
+path = []
+def backtrack(end_state):
+    
+
+    while(end_state.parent!=None):
+        path.append(end_state)
+        end_state = copy_node(end_state)
+
+        parent_index = end_state.parent
+        found_node=Node()
+
+        # which element in visited has parent as parent_index
+        for node in visited_states:
+            if(node.index==parent_index):
+                found_node=copy_node(node)
+                break
+        end_state = found_node
+    
+    # print(path)
+            # next_element = np.argwhere(np.array(visited))
+            # make that element end state
+            # repeat
+
+
 def bfs (state):
     global rec
-    rec+=1
-    print("recursion count: ",rec)
-    print("recursive call here with state:")
-    print(state.state)
+    # rec+=1
+    # print("recursion count: ",rec)
+    # print("recursive call here with state:")
+    # print(state.state)
     open = False
     if (state.state==goal_state).all():
         print("REACHED GOAL!\n",state.state)
+        
+        backtrack(state)
         return
     
     else:
@@ -83,20 +113,26 @@ def bfs (state):
         retval,new_state = move_state(state , 'l')
         if retval:
             visited_states.append(new_state)
+            # add_to_visited_list(state=current_state,parent=state)
+
             open_nodes.append(new_state)
             open = True
-            print()
+            
 
         # try and move up
         retval,new_state = move_state(state , 'u')
         if retval:
             visited_states.append(new_state)
+            # add_to_visited_list(state=current_state,parent=state)
+
             open_nodes.append(new_state)
             open = True
 
         # try and move right
         retval,new_state = move_state(state , 'r')
         if retval:
+            # add_to_visited_list(state=current_state,parent=state)
+
             visited_states.append(new_state)
             open_nodes.append(new_state)
             open = True
@@ -105,6 +141,7 @@ def bfs (state):
         # try and move up
         retval,new_state = move_state(state , 'd')
         if retval:
+            # add_to_visited_list(state=current_state,parent=state)
             visited_states.append(new_state)
             open_nodes.append(new_state)
             open = True
@@ -113,6 +150,7 @@ def bfs (state):
             open_nodes.pop(0)
         # print(len(open_nodes))
         bfs(open_nodes[0])
+        
 
 
 
@@ -126,14 +164,14 @@ goal_state=np.array([[1,4,7],[2,5,8],[3,6,0]])
 
 if __name__=="__main__":
     current_state = Node()
-    current_state.parent = 0
+    # current_state.parent = 0
     current_state.index = 0
     # current_state.state=np.array([[1,4,6],[2,3,0],[8,7,5]])
     # test case 1:
-    # current_state.state=np.array([[1,4,7],[5,0,8],[2,3,6]])
+    current_state.state=np.array([[1,4,7],[5,0,8],[2,3,6]])
     # test case 2:
-    current_state.state=np.array([[4,7,0],[1,2,8],[3,5,6]])
-
+    # current_state.state=np.array([[4,7,0],[1,2,8],[3,5,6]])
+    current_state.parent = None
 
     
     visited_states.append(current_state)
@@ -156,4 +194,10 @@ if __name__=="__main__":
     
     # print("before sixth move:\n",current_state.state)
     bfs(current_state)
+    print("Path is:")
+    path.append(current_state)
+    path.reverse()
+    # path= path.reverse()
+    for node in path:
+        print(node.state)
 
