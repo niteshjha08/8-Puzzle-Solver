@@ -68,11 +68,11 @@ def move_state(curr_state,direction):
         # print("Cannot move in this direction ")
         return False, curr_state
 
-rec=0
+
 # def add_to_visited_list(state=current_state,parent=parent_state):
 #     visited_states.append(state)
 path = []
-def backtrack(end_state):
+def generate_path(end_state):
     
 
     while(end_state.parent!=None):
@@ -89,115 +89,151 @@ def backtrack(end_state):
                 break
         end_state = found_node
     
-    # print(path)
-            # next_element = np.argwhere(np.array(visited))
-            # make that element end state
-            # repeat
 
+def ActionMoveLeft(state):
+    retval,new_state = move_state(state , 'l')
+    return retval, new_state
+
+def ActionMoveUp(state):
+    retval,new_state = move_state(state , 'u')
+    return retval, new_state
+
+def ActionMoveRight(state):
+    retval,new_state = move_state(state , 'r')
+    return retval, new_state
+
+def ActionMoveDown(state):
+    retval,new_state = move_state(state , 'd')
+    return retval, new_state
 
 def bfs (state):
-    global rec
-    # rec+=1
-    # print("recursion count: ",rec)
-    # print("recursive call here with state:")
-    # print(state.state)
     open = False
     if (state.state==goal_state).all():
         print("REACHED GOAL!\n",state.state)
+        visited_states.append(state)
         
-        backtrack(state)
+        generate_path(state)
         return
     
     else:
         # Try and move left
-        retval,new_state = move_state(state , 'l')
+        retval,new_state = ActionMoveLeft(state)
         if retval:
             visited_states.append(new_state)
-            # add_to_visited_list(state=current_state,parent=state)
 
             open_nodes.append(new_state)
             open = True
             
+        if (new_state.state==goal_state).all():
+            print("REACHED GOAL!\n",state.state)
+            # visited_states.append(new_state)
+            
+            generate_path(new_state)
+            return
 
         # try and move up
-        retval,new_state = move_state(state , 'u')
+        retval,new_state = ActionMoveUp(state)
         if retval:
             visited_states.append(new_state)
-            # add_to_visited_list(state=current_state,parent=state)
-
             open_nodes.append(new_state)
             open = True
+
+        if (new_state.state==goal_state).all():
+            print("REACHED GOAL!\n",state.state)
+            # visited_states.append(new_state)
+            
+            generate_path(new_state)
+            
+            return
 
         # try and move right
-        retval,new_state = move_state(state , 'r')
+        retval,new_state = ActionMoveRight(state)
         if retval:
-            # add_to_visited_list(state=current_state,parent=state)
-
             visited_states.append(new_state)
             open_nodes.append(new_state)
             open = True
+
+        if (new_state.state==goal_state).all():
+            print("REACHED GOAL!\n",state.state)
+            # visited_states.append(new_state)
             
+            generate_path(new_state)
 
+            return
+            
         # try and move up
-        retval,new_state = move_state(state , 'd')
+        retval,new_state = ActionMoveDown(state)
         if retval:
-            # add_to_visited_list(state=current_state,parent=state)
             visited_states.append(new_state)
             open_nodes.append(new_state)
             open = True
+
+        if (new_state.state==goal_state).all():
+            print("REACHED GOAL!\n",state.state)
+          
+            generate_path(new_state)
+
+            return
 
         if(not open):
             open_nodes.pop(0)
-        # print(len(open_nodes))
         bfs(open_nodes[0])
         
 
+def write_all_nodes(filename):
+    file=open(filename,'w')
+    for node in visited_states:
+        file.write(str(node.state.ravel()) + '\n')
 
+def write_all_nodes_info(filename):
+    file=open(filename,'w')
+    for node in visited_states:
+        file.write(str(node.index) + "   " + str(node.parent)+ '\n')
 
-# Format of states stored: {node_index: n(int), parent_index: p(int), node_state: state(np.ndarray)}
+def write_all_nodes_path(filename):
+    file=open(filename,'w')
+    for node in path:
+        file.write(str(node.state.ravel())[1:-1] + '\n')
+
+# ------ Global variables used --------------------
 visited_states= []
 open_nodes = []
 moveBindings={'u':(-1,0),'d':(1,0),'l':(0,-1),'r':(0,1)}
-node_count = 0 # count of nodes in visited, is used for indexing nodes
-explore_order = ['l','u','r','d']
 goal_state=np.array([[1,4,7],[2,5,8],[3,6,0]])
+# -------------------------------------------------
 
 if __name__=="__main__":
     current_state = Node()
-    # current_state.parent = 0
-    current_state.index = 0
-    # current_state.state=np.array([[1,4,6],[2,3,0],[8,7,5]])
-    # test case 1:
-    current_state.state=np.array([[1,4,7],[5,0,8],[2,3,6]])
-    # test case 2:
-    # current_state.state=np.array([[4,7,0],[1,2,8],[3,5,6]])
     current_state.parent = None
+    current_state.index = 0
+    # test case 1:
+    # current_state.state=np.array([[1,4,7],[5,0,8],[2,3,6]])
+    # test case 2:
+    current_state.state=np.array([[4,7,0],[1,2,8],[3,5,6]])
 
-    
     visited_states.append(current_state)
     open_nodes.append(current_state)
 
-    # print("initial state:\n",current_state.state)
-    # retval,current_state=move_state(current_state,'l')
-    
-    # print("before second move:\n",current_state.state)
-    # retval,current_state=move_state(current_state,'r')
-
-    # print("before third move:\n",current_state.state)
-    # retval,current_state=move_state(current_state,'u')
-
-    # print("before fourth move:\n",current_state.state)
-    # retval,current_state=move_state(current_state,'r')
-
-    # print("before fifth move:\n",current_state.state)
-    # retval,current_state=move_state(current_state,'d')
-    
-    # print("before sixth move:\n",current_state.state)
     bfs(current_state)
-    print("Path is:")
+    
     path.append(current_state)
     path.reverse()
-    # path= path.reverse()
+
+    print("Path is:")
     for node in path:
         print(node.state)
+
+    Nodesfile = './Nodes.txt'
+    NodesInfofile = './NodesInfo.txt'
+
+    NodesPath = './nodePath.txt'
+
+
+    write_all_nodes(Nodesfile)
+    write_all_nodes_info(NodesInfofile)
+
+    write_all_nodes_path(NodesPath)
+
+
+
 
